@@ -67,4 +67,3 @@ try:
 
 finally:
     pipe.stop()
-
