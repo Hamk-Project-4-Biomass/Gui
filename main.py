@@ -1,13 +1,9 @@
-import math
-import time
 import cv2
 import numpy as np
 import pyrealsense2 as rs
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import os
-import sys
 
 class AppState:
 
