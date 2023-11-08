@@ -4,6 +4,9 @@ import pyrealsense2 as rs
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from datetime import datetime
+from functions import *
+import os
 
 class AppState:
 
@@ -30,6 +33,7 @@ button_frame.pack(fill="x")
 
 # Create a function to update the canvas
 def update_canvas():
+    
     # Wait for a coherent pair of frames: depth and color
     frames = state.pipeline.wait_for_frames()
     depth_frame = frames.get_depth_frame()
@@ -77,15 +81,24 @@ toggle_button.pack(side="left")
 
 # Create a "Save PNG" button
 def save_png():
-    # Replace 'canvas.image' with the image you want to save
+    
     pass
 
 save_button = ttk.Button(button_frame, text="Save PNG", command=save_png)
 save_button.pack(side="left")
 
 def save_ply():
+    frames = state.pipeline.wait_for_frames()
 
-    print("save_ply")
+    color_frame = frames.get_color_frame()
+    depth_frame = frames.get_depth_frame()
+
+    fulldatestring = datetime.now().strftime("%Y-%m-%d.%H.%M.%S")
+
+    script_dir = os.path.dirname(__file__)
+
+    export_ply.export( color_frame,depth_frame,fulldatestring + ".ply", script_dir)
+
 
 save_button = ttk.Button(button_frame, text="Export Ply", command=save_ply)
 save_button.pack(side="left")
