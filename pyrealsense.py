@@ -9,12 +9,15 @@ class RealSense:
         try:
             self.pipe = rs.pipeline()
 
-            rs_config = rs.config()
+            self.rs_config = rs.config()
 
-            rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
-            rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
+            self.rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
+            self.rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
 
-            self.pipe.start(rs_config)
+
+
+            self.pipe.start(self.rs_config)
+
             self.update()
         except:
             print("No device detected")
@@ -59,3 +62,8 @@ class RealSense:
         self.update()
         return self.depth_frame
 
+    def pipe_stop(self):
+        self.pipe.stop()
+
+    def pipe_start(self):
+        self.pipe.start(self.rs_config)

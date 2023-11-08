@@ -5,6 +5,7 @@ from datetime import datetime
 from functions import *
 from pyrealsense import *
 import os
+import subprocess
 
 class AppState:
 
@@ -44,9 +45,6 @@ color_canvas.pack(side="left")
 depth_canvas = tk.Canvas(root, width=640, height=480)
 depth_canvas.pack(side="right")
 
-pk_canvas = tk.Canvas(root, width=1280, height=480)
-pk_canvas.pack(side="bottom")
-
 # Create a "Save PNG" button
 def save_png():
     # Save the color and depth images to the current directory
@@ -75,6 +73,16 @@ def save_ply():
 
 save_button = ttk.Button(button_frame, text="Export Ply", command=save_ply)
 save_button.pack(side="left")
+
+def viewer():
+    state.realsense.pipe_stop()
+    procces = subprocess.Popen(["python", "opencv_pointcloud_viewer.py"])
+    procces.wait()
+    state.realsense.pipe_start()
+
+save_button = ttk.Button(button_frame, text="Pointcloud viewer", command=viewer)
+save_button.pack(side="left")
+
 
 # Create a "Quit" button
 quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
