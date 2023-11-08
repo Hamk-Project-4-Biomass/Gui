@@ -1,25 +1,15 @@
-import cv2
-import numpy as np
-import pyrealsense2 as rs
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import ImageTk
 from datetime import datetime
 from functions import *
+from pyrealsense import *
 import os
 
 class AppState:
 
     def __init__(self, *args, **kwargs):
-        self.pipeline = rs.pipeline()
-        config = rs.config()
-
-        config.enable_stream(rs.stream.depth, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
-
-        # Start streaming
-        self.pipeline.start(config)
-
+        self.realsense = RealSense() # Create a RealSense object
 # Create a Tkinter window
 root = tk.Tk()
 root.title("RealSense Viewer")
@@ -33,38 +23,20 @@ button_frame.pack(fill="x")
 
 # Create a function to update the canvas
 def update_canvas():
-    
-    # Wait for a coherent pair of frames: depth and color
-    frames = state.pipeline.wait_for_frames()
-    depth_frame = frames.get_depth_frame()
-    color_frame = frames.get_color_frame()
+    try:
+        color_tk_image = ImageTk.PhotoImage(image=state.realsense.get_color_pill_image())
+        depth_tk_image = ImageTk.PhotoImage(image=state.realsense.get_depth_pill_image())
 
-    # Convert images to numpy arrays
-    depth_image = np.asanyarray(depth_frame.get_data())
-    color_image = np.asanyarray(color_frame.get_data())
-
-    # resize the color image to match depth image for display but keep aspect ratio
-    scale = depth_frame.get_width() / color_frame.get_width()
-    dim = (depth_frame.get_width(), int(color_frame.get_height() * scale))
-    color_image = cv2.resize(color_image, dim, interpolation = cv2.INTER_AREA)
-
-    # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
-    depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.07), cv2.COLORMAP_MAGMA)
-
-    # Convert the NumPy arrays to images suitable for displaying in Tkinter
-    color_pil_image = Image.fromarray(cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB))
-    depth_pil_image = Image.fromarray(depth_colormap)
-    
-    color_tk_image = ImageTk.PhotoImage(image=color_pil_image)
-    depth_tk_image = ImageTk.PhotoImage(image=depth_pil_image)
-
-    # Update the canvas widgets with the new images
-    color_canvas.create_image(0, 0, anchor=tk.NW, image=color_tk_image)
-    depth_canvas.create_image(0, 0, anchor=tk.NW, image=depth_tk_image)
-    
-    # Keep references to prevent garbage collection
-    color_canvas.image = color_tk_image
-    depth_canvas.image = depth_tk_image
+        # Update the canvas widgets with the new images
+        color_canvas.create_image(0, 0, anchor=tk.NW, image=color_tk_image)
+        depth_canvas.create_image(0, 0, anchor=tk.NW, image=depth_tk_image)
+        
+        # Keep references to prevent garbage collection
+        color_canvas.image = color_tk_image
+        depth_canvas.image = depth_tk_image
+    except:
+        print("No device detected")
+        pass
 
 # Create canvas widgets for color and depth images
 color_canvas = tk.Canvas(root, width=640, height=480)
@@ -88,16 +60,14 @@ save_button = ttk.Button(button_frame, text="Save PNG", command=save_png)
 save_button.pack(side="left")
 
 def save_ply():
-    frames = state.pipeline.wait_for_frames()
-
-    color_frame = frames.get_color_frame()
-    depth_frame = frames.get_depth_frame()
+    color_frame = state.realsense.get_color_frame()
+    depth_frame = state.realsense.get_depth_frame()
 
     fulldatestring = datetime.now().strftime("%Y-%m-%d.%H.%M.%S")
 
     script_dir = os.path.dirname(__file__)
 
-    export_ply.export( color_frame,depth_frame,fulldatestring + ".ply", script_dir)
+    export_ply.export(color_frame,depth_frame,fulldatestring + ".ply", script_dir)
 
 
 save_button = ttk.Button(button_frame, text="Export Ply", command=save_ply)
