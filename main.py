@@ -47,14 +47,17 @@ depth_canvas.pack(side="right")
 pk_canvas = tk.Canvas(root, width=1280, height=480)
 pk_canvas.pack(side="bottom")
 
-# Create a "Start/Stop" button
-toggle_button = ttk.Button(button_frame, text="Start/Stop", command=update_canvas)
-toggle_button.pack(side="left")
-
 # Create a "Save PNG" button
 def save_png():
-    
-    pass
+    # Save the color and depth images to the current directory
+    color_image = state.realsense.get_color_pill_image()
+    depth_image = state.realsense.get_depth_pill_image()
+
+    fulldatestring = datetime.now().strftime("%Y-%m-%d.%H.%M.%S")
+
+    script_dir = os.path.dirname(__file__)
+
+    export.png(color_image,depth_image,fulldatestring, script_dir)
 
 save_button = ttk.Button(button_frame, text="Save PNG", command=save_png)
 save_button.pack(side="left")
@@ -67,7 +70,7 @@ def save_ply():
 
     script_dir = os.path.dirname(__file__)
 
-    export_ply.export(color_frame,depth_frame,fulldatestring + ".ply", script_dir)
+    export.ply(color_frame,depth_frame,fulldatestring + ".ply", script_dir)
 
 
 save_button = ttk.Button(button_frame, text="Export Ply", command=save_ply)
