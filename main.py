@@ -132,7 +132,7 @@ for i, (text, slider_args, command) in enumerate(slider_data):
     label.grid(row=i, column=0, padx=2, pady=2)
     slider1 = tk.Scale(color_frame, **slider_args)
     slider1.grid(row=i, column=1, padx=2, pady=2)
-    slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1: command(slider1.get()))
+    slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1, cmd=command: cmd(slider.get()))
     sliders.append(slider1)
 
 
