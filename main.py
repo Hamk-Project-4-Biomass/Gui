@@ -137,37 +137,29 @@ for i, (text, slider_args, command) in enumerate(slider_data):
 
 
 # Create a slider with a label on top
-
 def auto_white_balance():
     state.realsense.color_auto_white_balance()
     sliders[8].set(state.realsense.get_color_white_balance())
 
-
 btn = tk.Button(color_frame, text="Auto Withe Balance", command=auto_white_balance)
 btn.grid(row=0, column=2, padx=2, pady=2)
-
 
 def backlight_compensation():
     state.realsense.color_backlight_compensation()
 
-
 backlight_compensation_btn = ttk.Button(color_frame, text="Backlight Compensation", command=backlight_compensation)
 backlight_compensation_btn.grid(row=1, column=2, padx=2, pady=2)
-
 
 def low_light_compensation():
     state.realsense.color_low_light_compensation()
 
-
 low_light_compensation_btn = ttk.Button(color_frame, text="Low Light Compensation", command=low_light_compensation)
 low_light_compensation_btn.grid(row=2, column=2, padx=2, pady=2)
-
 
 def auto_exposure():
     state.realsense.color_auto_exposure()
     sliders[3].set(state.realsense.get_color_gain())
     sliders[0].set(state.realsense.get_color_exposure())
-
 
 auto_exposure_btn = ttk.Button(color_frame, text="auto exposure", command=auto_exposure)
 auto_exposure_btn.grid(row=3, column=2, padx=2, pady=2)
