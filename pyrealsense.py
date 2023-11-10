@@ -124,6 +124,29 @@ class RealSense:
         else:
             self.sensor_rgb.set_option(rs.option.low_light_compensation, True)
 
+    def color_auto_white_balance(self):
+        self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, True)
+
+    def set_color_power_line_frequency(self, value):
+        self.sensor_rgb.set_option(rs.option.power_line_frequency, value)
+
+    def set_depth_exposure(self, value):
+        self.sensor_depth.set_option(rs.option.exposure, value)
+
+    def set_depth_gain(self, value):
+        self.sensor_depth.set_option(rs.option.gain, value)
+
+    def set_depth_power(self,value):
+        self.sensor_depth.set_option(rs.option.laser_power, value)
+
+    def depth_auto_exposure(self):
+        if self.sensor_depth.get_option(rs.option.enable_auto_exposure):
+            self.sensor_depth.set_option(rs.option.enable_auto_exposure, False)
+        else:
+            self.sensor_depth.set_option(rs.option.enable_auto_exposure, True)
+
+
+    # Getters
     def get_color_power_line_frequency(self):
         return self.sensor_rgb.get_option(rs.option.power_line_frequency)
 
@@ -165,9 +188,9 @@ class RealSense:
 
     def get_low_light_compensation(self):
         return self.sensor_rgb.get_option(rs.option.low_light_compensation)
-
-    def color_auto_white_balance(self):
-        self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, True)
-
-    def set_color_power_line_frequency(self, value):
-        self.sensor_rgb.set_option(rs.option.power_line_frequency, value)
+    
+    def get_depth_exposure(self):
+        return self.sensor_depth.get_option(rs.option.exposure)
+    
+    def get_depth_gain(self):
+        return self.sensor_depth.get_option(rs.option.gain)

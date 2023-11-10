@@ -110,7 +110,7 @@ def update():
 color_frame = tk.Frame(root)
 color_frame.grid(row=2, column=0, columnspan=3, pady=2, sticky="ew")
 
-sliders = []
+sliders_color = []
 
 slider_data = [
     ("exposure",  {"from_": 1, "to": 10000, "orient": tk.HORIZONTAL}, state.realsense.set_color_exposure),
@@ -133,15 +133,15 @@ for i, (text, slider_args, command) in enumerate(slider_data):
     slider1 = tk.Scale(color_frame, **slider_args)
     slider1.grid(row=i, column=1, padx=2, pady=2)
     slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1, cmd=command: cmd(slider.get()))
-    sliders.append(slider1)
+    sliders_color.append(slider1)
 
 
 # Create a slider with a label on top
 def auto_white_balance():
     state.realsense.color_auto_white_balance()
-    sliders[8].set(state.realsense.get_color_white_balance())
+    sliders_color[8].set(state.realsense.get_color_white_balance())
 
-btn = tk.Button(color_frame, text="Auto Withe Balance", command=auto_white_balance)
+btn = ttk.Button(color_frame, text="Auto Withe Balance", command=auto_white_balance)
 btn.grid(row=0, column=2, padx=2, pady=2)
 
 def backlight_compensation():
@@ -156,13 +156,42 @@ def low_light_compensation():
 low_light_compensation_btn = ttk.Button(color_frame, text="Low Light Compensation", command=low_light_compensation)
 low_light_compensation_btn.grid(row=2, column=2, padx=2, pady=2)
 
-def auto_exposure():
+def color_auto_exposure():
     state.realsense.color_auto_exposure()
-    sliders[3].set(state.realsense.get_color_gain())
-    sliders[0].set(state.realsense.get_color_exposure())
+    sliders_color[3].set(state.realsense.get_color_gain())
+    sliders_color[0].set(state.realsense.get_color_exposure())
 
-auto_exposure_btn = ttk.Button(color_frame, text="auto exposure", command=auto_exposure)
+auto_exposure_btn = ttk.Button(color_frame, text="auto exposure", command=color_auto_exposure)
 auto_exposure_btn.grid(row=3, column=2, padx=2, pady=2)
+
+
+# the options for the depth camera
+depth_frame = tk.Frame(root)
+depth_frame.grid(row=2, column=1, columnspan=3, pady=2, sticky="ne")
+
+sliders_depth = []
+
+sliders_data = [
+    ("exposure",  {"from_": 1, "to": 166, "orient": tk.HORIZONTAL}, state.realsense.set_depth_exposure),
+    ("gain",  {"from_": 16, "to": 248, "orient": tk.HORIZONTAL}, state.realsense.set_depth_gain),
+    ("laser power",  {"from_": 0, "to": 360, "orient": tk.HORIZONTAL}, state.realsense.set_depth_power),
+]
+
+for i, (text, slider_args, command) in enumerate(sliders_data):
+    label = tk.Label(depth_frame, text=text)
+    label.grid(row=i, column=2, padx=2, pady=2)
+    slider1 = tk.Scale(depth_frame, **slider_args)
+    slider1.grid(row=i, column=1, padx=2, pady=2)
+    slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1, cmd=command: cmd(slider.get()))
+    sliders_depth.append(slider1)   
+
+def depth_auto_exposure():
+    state.realsense.depth_auto_exposure()
+    sliders_depth[0].set(state.realsense.get_depth_exposure())
+    sliders_depth[1].set(state.realsense.get_depth_gain())
+
+btn = ttk.Button(depth_frame, text="Auto Exposure", command=depth_auto_exposure)
+btn.grid(row=0, column=0, padx=2, pady=2)
 
 update()
 
