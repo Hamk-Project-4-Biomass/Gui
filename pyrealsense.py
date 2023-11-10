@@ -7,6 +7,7 @@ from PIL import Image
 class RealSense:
 
     def __init__(self):
+
         self.depth_pil_image = None
         self.color_pil_image = None
         self.color_image = None
@@ -14,6 +15,7 @@ class RealSense:
         self.color_frame = None
         self.depth_frame = None
         self.frames = None
+
         try: 
 
             self.pipe = rs.pipeline()
@@ -110,7 +112,7 @@ class RealSense:
     def set_color_white_balance(self, value):
         self.sensor_rgb.set_option(rs.option.white_balance, value)
 
-    def set_color_auto_white_balance(self):
+    def toggle_color_auto_white_balance(self):
         if self.sensor_rgb.get_option(rs.option.enable_auto_white_balance):
             self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, False)
         else:
@@ -123,13 +125,10 @@ class RealSense:
             self.sensor_rgb.set_option(rs.option.backlight_compensation, True)
 
     def color_low_light_compensation(self):
-        if self.sensor_rgb.get_option(rs.option.low_light_compensation):
-            self.sensor_rgb.set_option(rs.option.low_light_compensation, False)
+        if self.sensor_rgb.get_option(rs.option.low_light_comp):
+            self.sensor_rgb.set_option(rs.option.low_light_comp, False)
         else:
-            self.sensor_rgb.set_option(rs.option.low_light_compensation, True)
-
-    def color_auto_white_balance(self):
-        self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, True)
+            self.sensor_rgb.set_option(rs.option.low_light_comp, True)
 
     def set_color_power_line_frequency(self, value):
         self.sensor_rgb.set_option(rs.option.power_line_frequency, value)
@@ -198,3 +197,10 @@ class RealSense:
     
     def get_depth_gain(self):
         return self.sensor_depth.get_option(rs.option.gain)
+    
+    def get_depth_power(self):
+        return self.sensor_depth.get_option(rs.option.laser_power)
+    
+    def get_depth_auto_exposure(self):
+        return self.sensor_depth.get_option(rs.option.enable_auto_exposure)
+    
