@@ -14,21 +14,25 @@ class RealSense:
         self.color_frame = None
         self.depth_frame = None
         self.frames = None
+        try: 
 
-        self.pipe = rs.pipeline()
+            self.pipe = rs.pipeline()
 
-        self.rs_config = rs.config()
+            self.rs_config = rs.config()
 
-        self.rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
-        self.rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
+            self.rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
+            self.rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
 
-        self.pipe.start(self.rs_config)
+            self.pipe.start(self.rs_config)
 
-        self.sensor_rgb = self.pipe.get_active_profile().get_device().query_sensors()[1]
+            self.sensor_rgb = self.pipe.get_active_profile().get_device().query_sensors()[1]
 
-        self.sensor_depth = self.pipe.get_active_profile().get_device().query_sensors()[0]
+            self.sensor_depth = self.pipe.get_active_profile().get_device().query_sensors()[0]
 
-        self.update()
+            self.update()
+        except:
+            print("No device detected")
+            pass
 
     def update(self):
         self.frames = self.pipe.wait_for_frames()

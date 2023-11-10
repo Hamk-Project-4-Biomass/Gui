@@ -44,6 +44,7 @@ def update_canvas():
         depth_canvas.image = depth_tk_image
     except:
         print("No device detected")
+        pass
 
 
 # Create canvas widgets for color and depth images
