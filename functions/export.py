@@ -23,13 +23,19 @@ def get_latest_folder(scipt_dir):
     if not os.path.exists(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day))):
         os.makedirs(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day)))
         print("Created day folder")
+
+    # check if the output folder has a folder with the current hour
+    if not os.path.exists(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().hour))):
+        os.makedirs(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().hour)))
+        print("Created hour folder")
+
     # check if the output folder has a folder with the current minute
-    if not os.path.exists(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().minute))):
-        os.makedirs(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().minute)))
+    if not os.path.exists(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().hour), str(datetime.now().minute))):
+        os.makedirs(os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().hour), str(datetime.now().minute)))
         print("Created minute folder")
 
     # return the path to the minute folder
-    return os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().minute))
+    return os.path.join(scipt_dir, "output", str(datetime.now().year), str(datetime.now().month), str(datetime.now().day), str(datetime.now().hour), str(datetime.now().minute))
 
 def ply(color_frame, depth_frame, filename, script_dir):
     # Declare pointcloud object, for calculating point clouds and texture mappings
@@ -40,6 +46,12 @@ def ply(color_frame, depth_frame, filename, script_dir):
 
     # Generate the point cloud and texture mappings
     points = pc.calculate(depth_frame)
+
+    #do some post processing
+    #decimate = rs.decimation_filter()
+    #decimate.set_option(rs.option.filter_magnitude, 2 ** 1)
+    # points = decimate.process(points)
+
 
     abs_file_path = os.path.join(get_latest_folder(script_dir), filename)
 
