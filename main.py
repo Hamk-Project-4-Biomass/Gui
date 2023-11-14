@@ -7,7 +7,6 @@ from pyrealsense import *
 import os
 import subprocess
 
-
 class AppState:
 
     def __init__(self, *args, **kwargs):
@@ -32,7 +31,6 @@ sliders_color = []
 sliders_depth = []
 auto_btns = []
 
-
 def update_auto_btns():
 
         auto_btns[0].configure(text="Auto White Balance" if state.realsense.get_color_auto_white_balance() else "Manual White Balance")
@@ -41,8 +39,6 @@ def update_auto_btns():
         auto_btns[3].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
 
         auto_btns[4].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
-
-
 
 # Create a function to update the sliders
 def update_sliders():
@@ -122,7 +118,11 @@ save_button_ply.grid(row=0, column=1, padx=2, pady=2)
 
 def viewer():
     state.realsense.pipe_stop()
-    process = subprocess.Popen(["python", "opencv_pointcloud_viewer.py"])
+
+    #get the file path of the current script
+    script_dir = os.path.dirname(__file__)
+
+    process = subprocess.Popen(["python", script_dir +  "\\opencv_pointcloud_viewer.py"])
     process.wait()
     state.realsense.pipe_start()
 
@@ -234,7 +234,6 @@ def depth_auto_exposure():
 btn = ttk.Button(depth_frame, text="Auto Exposure", command=depth_auto_exposure)
 btn.grid(row=0, column=0, padx=2, pady=2)
 auto_btns.append(btn)
-
 
 update()
 
