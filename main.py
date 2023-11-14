@@ -119,10 +119,9 @@ save_button_ply.grid(row=0, column=1, padx=2, pady=2)
 def viewer():
     state.realsense.pipe_stop()
 
-    #get the file path of the current script
     script_dir = os.path.dirname(__file__)
 
-    process = subprocess.Popen(["python", script_dir +  "\\opencv_pointcloud_viewer.py"])
+    process = subprocess.Popen(["python", os.path.join(script_dir, "opencv_pointcloud_viewer.py")])
     process.wait()
     state.realsense.pipe_start()
 

@@ -1,5 +1,4 @@
-output/ply/*
-output/png/*
+output/*
 *.pyc
 .idea/*
 
