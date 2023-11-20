@@ -1,0 +1,8 @@
+cv2
+numpy
+pyrealsense2
+tkinter
+tkinter
+PIL
+open3d
+croniter

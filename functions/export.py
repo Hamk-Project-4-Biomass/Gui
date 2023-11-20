@@ -47,9 +47,9 @@ def ply(color_frame, depth_frame, filename, script_dir):
     # Generate the point cloud and texture mappings
     points = pc.calculate(depth_frame)
 
-    #do some post processing
-    #decimate = rs.decimation_filter()
-    #decimate.set_option(rs.option.filter_magnitude, 2 ** 1)
+    # do some post processing
+    decimate = rs.decimation_filter()
+    decimate.set_option(rs.option.filter_magnitude, 2 ** 1)
     # points = decimate.process(points)
 
 

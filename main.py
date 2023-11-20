@@ -4,6 +4,8 @@ from datetime import datetime
 from PIL import ImageTk
 from functions import *
 from pyrealsense import *
+from croniter import croniter
+import time
 import os
 import subprocess
 
@@ -22,7 +24,6 @@ root.title("RealSense Viewer")
 # Create an instance of the AppState class
 state = AppState()
 
-# Create a frame for buttons
 # Create a frame for buttons
 button_frame = tk.Frame(root)
 button_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
@@ -116,7 +117,7 @@ save_button_ply = ttk.Button(button_frame, text="Export Ply", command=save_ply)
 save_button_ply.grid(row=0, column=1, padx=2, pady=2)
 
 
-def viewer():
+def pointcloud_viewer():
     state.realsense.pipe_stop()
 
     script_dir = os.path.dirname(__file__)
@@ -125,13 +126,13 @@ def viewer():
     process.wait()
     state.realsense.pipe_start()
 
-
-pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=viewer)
+pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=pointcloud_viewer)
 pointcloud_button.grid(row=0, column=2, padx=2, pady=2)
+
 
 # Create a "Quit" button
 quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
-quit_button.grid(row=0, column=3, padx=2, pady=2)
+quit_button.grid(row=0, column=4, padx=2, pady=2)
 
 
 # Add an update loop to periodically update the canvas

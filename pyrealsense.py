@@ -17,7 +17,6 @@ class RealSense:
         self.frames = None
 
         try: 
-
             self.pipe = rs.pipeline()
 
             self.rs_config = rs.config()
