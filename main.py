@@ -4,8 +4,7 @@ from datetime import datetime
 from PIL import ImageTk
 from functions import *
 from pyrealsense import *
-from croniter import croniter
-import time
+from scheduling import schedule_window
 import os
 import subprocess
 
@@ -129,6 +128,9 @@ def pointcloud_viewer():
 pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=pointcloud_viewer)
 pointcloud_button.grid(row=0, column=2, padx=2, pady=2)
 
+#Create a "Schedule button that will open a new window"
+schedule_button = ttk.Button(button_frame, text="Scheduling", command=schedule_window)
+schedule_button.grid(row=0, column=3, padx=2, pady=2)
 
 # Create a "Quit" button
 quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
