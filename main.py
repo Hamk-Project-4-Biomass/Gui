@@ -4,6 +4,7 @@ from datetime import datetime
 from PIL import ImageTk
 from functions import *
 from pyrealsense import *
+from scheduling import schedule_window
 import os
 import subprocess
 
@@ -116,6 +117,7 @@ save_button_ply = ttk.Button(button_frame, text="Export Ply", command=save_ply)
 save_button_ply.grid(row=0, column=1, padx=2, pady=2)
 
 
+#Function to open the pointcloud viewer
 def viewer():
     state.realsense.pipe_stop()
 
@@ -125,13 +127,17 @@ def viewer():
     process.wait()
     state.realsense.pipe_start()
 
-
+#Button to open the pointcloud viewer
 pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=viewer)
 pointcloud_button.grid(row=0, column=2, padx=2, pady=2)
 
+#Create a "Schedule button that will open a new window"
+schedule_button = ttk.Button(button_frame, text="Scheduling", command=schedule_window)
+schedule_button.grid(row=0, column=3, padx=2, pady=2)
+
 # Create a "Quit" button
 quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
-quit_button.grid(row=0, column=3, padx=2, pady=2)
+quit_button.grid(row=0, column=4, padx=2, pady=2)
 
 
 # Add an update loop to periodically update the canvas
