@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import ImageTk
 from functions import *
 from pyrealsense import *
-from scheduling import schedule_window
+from scheduling import ScheduleWindow
 import os
 import subprocess
+import time
+import multiprocessing
 
 class AppState:
 
@@ -128,9 +130,76 @@ def pointcloud_viewer():
 pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=pointcloud_viewer)
 pointcloud_button.grid(row=0, column=2, padx=2, pady=2)
 
+
+#----------------- Scheduling handling -----------------#
+
+end_date = None
+cron_interval = None
+cron_stop_event = multiprocessing.Event()
+schedule_job = None
+
+#Creating a frame to to display scheduling info
+schedule_info_frame = tk.Frame(root, borderwidth=2, relief="solid")
+schedule_info_frame.grid(row=1, column=3, columnspan=1, pady=2, padx=2, sticky="ew")
+
+ # Add a title label to the frame
+title_label = tk.Label(schedule_info_frame, text="Scheduling info", font=("Helvetica", 16, "bold"))
+title_label.pack(pady=(0, 10)) 
+
+ # Add labels for planned end date, interval, and time to next picture
+planned_end_date_label = tk.Label(schedule_info_frame, text=f"Planned End Date: {end_date}")
+planned_end_date_label.pack(anchor="w")
+
+interval_label = tk.Label(schedule_info_frame, text=f"Cron interval: {cron_interval}")
+interval_label.pack(anchor="w")
+
+time_to_next_picture_label = tk.Label(schedule_info_frame, text="Time to Next Picture:")
+time_to_next_picture_label.pack(anchor="w")
+
+def reset_schedule():
+    end_date = None
+    cron_interval = None
+
+    #Update the scheduling info
+    planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
+    interval_label.configure(text=f"Cron interval: {cron_interval}")
+
+    global schedule_job
+    schedule_job.set_stop_event()
+
+stop_button = ttk.Button(schedule_info_frame, text="Stop process", command=reset_schedule)
+stop_button.pack()
+
+
+#print the scheduling result
+def parent_callback(result_value_cron_string, result_value_end_date):
+    print("Result from child:", result_value_cron_string, " + ", result_value_end_date)
+
+    global end_date
+    end_date = result_value_end_date
+    global cron_interval
+    cron_interval = result_value_cron_string
+
+    #Update the scheduling info
+    planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
+    interval_label.configure(text=f"Cron interval: {cron_interval}")
+
+    global schedule_job
+    schedule_job = cron_script.cron_job(cron_interval, end_date, save_png, cron_stop_event)
+
+
+# Open a schedule window and wait for result from callback
+def open_schedule_window():
+        schedule_window = ScheduleWindow(root, parent_callback)
+        root.wait_window(schedule_window)
+
 #Create a "Schedule button that will open a new window"
-schedule_button = ttk.Button(button_frame, text="Scheduling", command=schedule_window)
+schedule_button = ttk.Button(button_frame, text="Scheduling", command=open_schedule_window)
 schedule_button.grid(row=0, column=3, padx=2, pady=2)
+
+
+#----------------- End of Scheduling handling -----------------#
+
 
 # Create a "Quit" button
 quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
