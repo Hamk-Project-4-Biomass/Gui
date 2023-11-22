@@ -27,64 +27,7 @@ state = AppState()
 
 # Create a frame for buttons
 button_frame = tk.Frame(root)
-button_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
-
-sliders_color = []
-sliders_depth = []
-auto_btns = []
-
-def update_auto_btns():
-
-        auto_btns[0].configure(text="Auto White Balance" if state.realsense.get_color_auto_white_balance() else "Manual White Balance")
-        auto_btns[1].configure(text="Backlight Compensation" if state.realsense.get_backlight_compensation() else "Manual Backlight Compensation")
-        #auto_btns[2].configure(text="Low Light Compensation" if state.realsense.get_low_light_compensation() else "Manual Low Light Compensation")
-        auto_btns[3].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
-
-        auto_btns[4].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
-
-# Create a function to update the sliders
-def update_sliders():
-    # Update the sliders with the current values
-    sliders_color[0].set(state.realsense.get_color_exposure())
-    sliders_color[1].set(state.realsense.get_color_brightness())
-    sliders_color[2].set(state.realsense.get_color_contrast())
-    sliders_color[3].set(state.realsense.get_color_gain())
-    sliders_color[4].set(state.realsense.get_color_hue())
-    sliders_color[5].set(state.realsense.get_color_saturation())
-    sliders_color[6].set(state.realsense.get_color_sharpness())
-    sliders_color[7].set(state.realsense.get_color_gamma())
-    sliders_color[8].set(state.realsense.get_color_white_balance())
-    sliders_color[9].set(state.realsense.get_color_power_line_frequency())
-
-    sliders_depth[0].set(state.realsense.get_depth_exposure())
-    sliders_depth[1].set(state.realsense.get_depth_gain())
-    sliders_depth[2].set(state.realsense.get_depth_power())
-
-# Create a function to update the canvas
-def update_canvas():
-    try:
-        color_tk_image = ImageTk.PhotoImage(image=state.realsense.get_color_pill_image())
-        depth_tk_image = ImageTk.PhotoImage(image=state.realsense.get_depth_pill_image())
-
-        # Update the canvas widgets with the new images
-        color_canvas.create_image(0, 0, anchor=tk.NW, image=color_tk_image)
-        depth_canvas.create_image(0, 0, anchor=tk.NW, image=depth_tk_image)
-
-        # Keep references to prevent garbage collection
-        color_canvas.image = color_tk_image
-        depth_canvas.image = depth_tk_image
-
-    except:
-        print("No device detected")
-        pass
-
-
-# Create canvas widgets for color and depth images
-color_canvas = tk.Canvas(root, width=640, height=480)
-color_canvas.grid(row=1, column=0, padx=2, pady=2)
-depth_canvas = tk.Canvas(root, width=640, height=480)
-depth_canvas.grid(row=1, column=1, padx=2, pady=2)
-
+button_frame.grid(row=0, column=0, columnspan=5, sticky="ew")
 
 # Create a "Save PNG" button
 def save_png():
@@ -129,6 +72,11 @@ def pointcloud_viewer():
 
 pointcloud_button = ttk.Button(button_frame, text="Pointcloud Viewer", command=pointcloud_viewer)
 pointcloud_button.grid(row=0, column=2, padx=2, pady=2)
+
+
+# Create a "Quit" button
+quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
+quit_button.grid(row=0, column=4, padx=2, pady=2)
 
 
 #----------------- Scheduling handling -----------------#
@@ -201,10 +149,62 @@ schedule_button.grid(row=0, column=3, padx=2, pady=2)
 #----------------- End of Scheduling handling -----------------#
 
 
-# Create a "Quit" button
-quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
-quit_button.grid(row=0, column=4, padx=2, pady=2)
+sliders_color = []
+sliders_depth = []
+auto_btns = []
 
+def update_auto_btns():
+
+        auto_btns[0].configure(text="Auto White Balance" if state.realsense.get_color_auto_white_balance() else "Manual White Balance")
+        auto_btns[1].configure(text="Backlight Compensation" if state.realsense.get_backlight_compensation() else "Manual Backlight Compensation")
+        #auto_btns[2].configure(text="Low Light Compensation" if state.realsense.get_low_light_compensation() else "Manual Low Light Compensation")
+        auto_btns[3].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
+
+        auto_btns[4].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
+
+# Create a function to update the sliders
+def update_sliders():
+    # Update the sliders with the current values
+    sliders_color[0].set(state.realsense.get_color_exposure())
+    sliders_color[1].set(state.realsense.get_color_brightness())
+    sliders_color[2].set(state.realsense.get_color_contrast())
+    sliders_color[3].set(state.realsense.get_color_gain())
+    sliders_color[4].set(state.realsense.get_color_hue())
+    sliders_color[5].set(state.realsense.get_color_saturation())
+    sliders_color[6].set(state.realsense.get_color_sharpness())
+    sliders_color[7].set(state.realsense.get_color_gamma())
+    sliders_color[8].set(state.realsense.get_color_white_balance())
+    sliders_color[9].set(state.realsense.get_color_power_line_frequency())
+
+    sliders_depth[0].set(state.realsense.get_depth_exposure())
+    sliders_depth[1].set(state.realsense.get_depth_gain())
+    sliders_depth[2].set(state.realsense.get_depth_power())
+
+# Create a function to update the canvas
+def update_canvas():
+    try:
+        color_tk_image = ImageTk.PhotoImage(image=state.realsense.get_color_pill_image())
+        depth_tk_image = ImageTk.PhotoImage(image=state.realsense.get_depth_pill_image())
+
+        # Update the canvas widgets with the new images
+        color_canvas.create_image(0, 0, anchor=tk.NW, image=color_tk_image)
+        depth_canvas.create_image(0, 0, anchor=tk.NW, image=depth_tk_image)
+
+        # Keep references to prevent garbage collection
+        color_canvas.image = color_tk_image
+        depth_canvas.image = depth_tk_image
+
+    except:
+        print("No device detected")
+        pass
+
+
+# Create canvas widgets for color and depth images
+color_canvas = tk.Canvas(root, width=640, height=480)
+color_canvas.grid(row=1, column=0, padx=2, pady=2)
+
+depth_canvas = tk.Canvas(root, width=640, height=480)
+depth_canvas.grid(row=1, column=1, padx=2, pady=2)
 
 # Add an update loop to periodically update the canvas
 def update():
