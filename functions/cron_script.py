@@ -7,18 +7,15 @@ import sys
 
 class cron_job():
 
-    time_until_next_execution = None
-
     def __init__(self, cron_string, end_date, callback, stop_event):
         self.cron_string = cron_string
         self.end_date = end_date
         self.callback = callback
         self.stop_event = stop_event
+        self.time_until_next_execution = None
 
-        process = multiprocessing.Process(target=self.launch_subprocess)
+        process = multiprocessing.Process(target=self.launch_subprocess, args=( self.time_until_next_execution, ))
         process.start()
-
-        process.join()
 
     def launch_subprocess(self):
         cron = croniter(self.cron_expression)
@@ -29,9 +26,9 @@ class cron_job():
             current_time = datetime.now()
 
             if next_execution > current_time:
-                time_until_next_execution = (next_execution - current_time).total_seconds()
+                self.time_until_next_execution = (next_execution - current_time).total_seconds()
 
-                print(f"Waiting {time_until_next_execution} seconds until the next invocation")
+                print(f"Waiting {self.time_until_next_execution} seconds until the next invocation")
                 time.sleep(5)
             else:
                 print(f"Invoking button at {current_time}")
