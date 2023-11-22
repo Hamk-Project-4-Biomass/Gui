@@ -20,11 +20,19 @@ class RealSense:
             self.pipe = rs.pipeline()
 
             self.rs_config = rs.config()
-
+            
+            
             self.rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
             self.rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
 
-            self.pipe.start(self.rs_config)
+            cfg = self.pipe.start(self.rs_config)
+
+            # profile = cfg.get_stream(rs.stream.depth) # Fetch stream profile for depth stream
+            # profile_color = cfg.get_stream(rs.stream.color) # Fetch stream profile for color stream
+            # intr = profile.as_video_stream_profile().get_extrinsics() # Downcast to video_stream_profile and fetch intrinsics
+            # intr_color = profile_color.as_video_stream_profile().get_extrinsics() # Downcast to video_stream_profile and fetch intrinsics
+            # print(intr)
+            # print(intr_color)
 
             self.sensor_rgb = self.pipe.get_active_profile().get_device().query_sensors()[1]
 

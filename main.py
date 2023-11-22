@@ -79,8 +79,8 @@ class RealSenseViewer:
                 global schedule_job
 
                 # Update the scheduling info
-                planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
-                interval_label.configure(text=f"Cron interval: {cron_interval}")
+                self.create_schedule_info.planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
+                self.create_schedule_info.interval_label.configure(text=f"Cron interval: {cron_interval}")
 
                 # Create a new cron job
                 schedule_job = cron_script.cron_job(cron_interval, end_date, self.state.realsense.capture, cron_stop_event)
@@ -135,6 +135,8 @@ class RealSenseViewer:
         def update():
             update_canvas()
             self.root.after(10, update)
+
+        update()
     
     def create_schedule_info(self):
         end_date = None
