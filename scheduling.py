@@ -12,6 +12,13 @@ result_cron_var = None
 
 class ScheduleWindow(tk.Toplevel):
 
+    def is_valid_cron(self, croniter_string):
+        try:
+            croniter(croniter_string)
+            return True
+        except ValueError:
+            return False
+
     def __init__(self,parent,callback):
         super().__init__(parent)
 
@@ -32,23 +39,20 @@ class ScheduleWindow(tk.Toplevel):
         select_end_date = ttk.Button(button_frame, text="Select end date", command= lambda: self.get_end_date(result_label))
         select_end_date.grid(row=1, column=1, padx=2, pady=2)
 
-        # create a label for the hourly input
-        hourly_label = tk.Label(button_frame, text="Enter a hourly interval")
-        hourly_label.grid(row=2, column=0, padx=2, pady=2)
+        # create a label for thecron input
+        cron_label = tk.Label(button_frame, text="Enter a cron expression interval")
+        cron_label.grid(row=2, column=0, padx=2, pady=2)
 
-        # input field for hous
-        hourly_input = tk.Entry(button_frame)
-        hourly_input.grid(row=2, column=1, padx=2, pady=2)
+        # create a label for the cron result
+        self.cron_result_label = tk.Label(button_frame, text=f"Cron validation result: None")
+        self.cron_result_label.grid(row=3, column=0, padx=2, pady=2)
 
-        minute_label = tk.Label(button_frame, text="Enter a minute interval")
-        minute_label.grid(row=3, column=0, padx=2, pady=2)
-        
-        # input field for minute
-        minute_input = tk.Entry(button_frame)
-        minute_input.grid(row=3, column=1, padx=2, pady=2)
+        # input field for cron
+        cron_input = tk.Entry(button_frame)
+        cron_input.grid(row=2, column=1, padx=2, pady=2)
         
         # create a button to schedule the capture
-        schedule_button = ttk.Button(button_frame, text="Schedule", command=lambda: self.schedule_capture(hourly_input, minute_input))
+        schedule_button = ttk.Button(button_frame, text="Schedule", command=lambda: self.schedule_capture(cron_input))
         schedule_button.grid(row=4, column=0, padx=2, pady=2)
 
         ok_button = tk.Button(button_frame, text="OK", command=self.on_ok_button_click)
@@ -69,21 +73,23 @@ class ScheduleWindow(tk.Toplevel):
         # Destroy the child window
         self.destroy()
 
-    def schedule_capture(self,hourly_input, minute_input):
+    def schedule_capture(self,cron_input):
         global end_date
         global result_cron_var 
         result_cron_var = tk.StringVar()
+        
+        if self.is_valid_cron(cron_input.get()):
+            result_cron_var = cron_input.get()
+            self.cron_result_label.config(text=f"Cron validation result: Valid")
+        else:
+            self.cron_result_label.config(text=f"Cron validation result: Invalid")
+            return None
         # get the current date and timeµ
-       
-        # get the hour and minute
-        hour = int(hourly_input.get())
-        minute = int(minute_input.get())
 
         #scedule the capture
         print("end date is not none")
         print("end date: ", end_date)
-        print("hourly_input: ", hour)
-        print("minute_input: ", minute)
+    
 
         # get the current date and time
         now = datetime.now()
@@ -95,10 +101,7 @@ class ScheduleWindow(tk.Toplevel):
             end_date = datetime.strptime(end_date, "%Y-%m-%d")
         print("end_date: ", end_date)
 
-        # create a cron string
-        result_cron_var = str(minute) + " " + str(hour) + " * * *"
-
-        print ("complete end time: ", end_date," capture every: ",hour ,":", minute, " cron string: ", result_cron_var)
+        print ("complete end time: ", end_date, " cron string: ", result_cron_var)
 
 
     def get_end_date(self,result_label):

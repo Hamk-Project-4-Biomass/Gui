@@ -62,7 +62,7 @@ class RealSense:
 
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_image, alpha=0.07), cv2.COLORMAP_MAGMA)
-        depth_raw_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_raw_image, alpha=0.07), cv2.COLORMAP_RAINBOW)
+        depth_raw_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_raw_image, alpha=0.07), cv2.COLORMAP_MAGMA)
 
         # Convert the NumPy arrays to images suitable for displaying in Tkinter
         self.color_pil_image = Image.fromarray(cv2.cvtColor(self.color_image, cv2.COLOR_BGR2RGB))
