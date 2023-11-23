@@ -27,6 +27,7 @@ class RealSense:
 
             cfg = self.pipe.start(self.rs_config)
 
+            #--------------Code to get intrinsics of the camera-----------------#
             # profile = cfg.get_stream(rs.stream.depth) # Fetch stream profile for depth stream
             # profile_color = cfg.get_stream(rs.stream.color) # Fetch stream profile for color stream
             # intr = profile.as_video_stream_profile().get_extrinsics() # Downcast to video_stream_profile and fetch intrinsics
@@ -51,6 +52,8 @@ class RealSense:
         # Convert images to numpy arrays
         self.depth_image = np.asanyarray(self.depth_frame.get_data())
         self.color_image = np.asanyarray(self.color_frame.get_data())
+        self.color_raw_image = self.color_image
+        self.depth_raw_image = self.depth_image
 
         # resize the color image to match depth image for display but keep aspect ratio
         scale = self.depth_frame.get_width() / self.color_frame.get_width()
@@ -59,10 +62,13 @@ class RealSense:
 
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_image, alpha=0.07), cv2.COLORMAP_MAGMA)
+        depth_raw_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_raw_image, alpha=0.07), cv2.COLORMAP_RAINBOW)
 
         # Convert the NumPy arrays to images suitable for displaying in Tkinter
         self.color_pil_image = Image.fromarray(cv2.cvtColor(self.color_image, cv2.COLOR_BGR2RGB))
+        self.color_export_image = Image.fromarray(cv2.cvtColor(self.color_raw_image, cv2.COLOR_BGR2RGB))
         self.depth_pil_image = Image.fromarray(depth_colormap)
+        self.depth_export_image = Image.fromarray(depth_raw_colormap)
 
     def get_depth_pill_image(self):
         self.update()
@@ -71,6 +77,14 @@ class RealSense:
     def get_color_pill_image(self):
         self.update()
         return self.color_pil_image
+    
+    def get_depth_image(self):
+        self.update()
+        return self.depth_export_image
+    
+    def get_color_image(self):
+        self.update()
+        return self.color_export_image
 
     def get_color_frame(self):
         self.update()
