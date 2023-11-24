@@ -24,6 +24,7 @@ class RealSenseViewer:
     end_date = None
     cron_interval = None
     time_until_next_execution = None
+    cron_status = False
 
     def __init__(self, root, state):
         self.root = root
@@ -85,9 +86,9 @@ class RealSenseViewer:
 
             def parent_callback(cron_interval, end_date):
                 self.cron_interval = cron_interval
-
+                self.end_date = end_date
                 # Update the scheduling info
-                self.planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
+                self.planned_end_date_label.configure(text=f"Planned End Date: {self.end_date}")
                 self.interval_label.configure(text=f"Cron interval: {self.cron_interval}")
 
                 #------------------------Cron code------------------------
@@ -107,12 +108,13 @@ class RealSenseViewer:
                         self.next_execution = cron.get_next(datetime)
 
                 def update_cron():
-                    if end_date is None or datetime.now() < end_date:
+                    if (end_date is None or datetime.now() < self.end_date) and self.cron_status:
                         check_cron()
                         self.root.after(1000, update_cron)
                     else:
                         return 0
 
+                self.cron_status = True
                 update_cron()
 
                 #---------------------------------------------------------
@@ -193,12 +195,13 @@ class RealSenseViewer:
         def reset_schedule():
             end_date = None
             cron_interval = None
-
+            self.time_until_next_execution = None
             #Update the scheduling info
             self.planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
             self.interval_label.configure(text=f"Cron interval: {cron_interval}")
-            self.schedule_job.set_stop_event()
-
+            self.time_to_next_picture_label.configure(text=f"Time to Next Picture: {self.time_until_next_execution}")
+            self.end_date = datetime.now()
+            self.cron_status = False
 
         stop_button = ttk.Button(schedule_info_frame, text="Stop process", command=reset_schedule)
         stop_button.pack()

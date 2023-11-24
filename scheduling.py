@@ -12,6 +12,9 @@ result_cron_var = None
 
 class ScheduleWindow(tk.Toplevel):
 
+    valid_date = False
+    default_date = True
+
     def is_valid_cron(self, croniter_string):
         try:
             croniter(croniter_string)
@@ -52,11 +55,14 @@ class ScheduleWindow(tk.Toplevel):
         cron_input.grid(row=2, column=1, padx=2, pady=2)
         
         # create a button to schedule the capture
-        schedule_button = ttk.Button(button_frame, text="Schedule", command=lambda: self.schedule_capture(cron_input))
+        schedule_button = ttk.Button(button_frame, text="Validate", command=lambda: self.schedule_capture(cron_input))
         schedule_button.grid(row=4, column=0, padx=2, pady=2)
 
-        ok_button = tk.Button(button_frame, text="OK", command=self.on_ok_button_click)
-        ok_button.grid(row=5, column=0, padx=2, pady=2)
+        self.ok_button = tk.Button(button_frame, text="OK", state=tk.DISABLED ,command=self.on_ok_button_click)
+        self.ok_button.grid(row=5, column=0, padx=2, pady=2)
+
+        cancel_button = tk.Button(button_frame, text="Cancel", command=self.destroy)
+        cancel_button.grid(row=6, column=0, padx=2, pady=2)
 
         # Store the callback function
         self.callback = callback
@@ -80,14 +86,20 @@ class ScheduleWindow(tk.Toplevel):
         
         if self.is_valid_cron(cron_input.get()):
             result_cron_var = cron_input.get()
-            self.cron_result_label.config(text=f"Cron validation result: Valid")
+            self.cron_result_label.config(text=f"Cron and date validation result: Valid")
+            if self.valid_date or self.default_date:
+                self.ok_button.config(state=tk.NORMAL)
+            else: 
+                self.ok_button.config(state=tk.DISABLED)
         else:
-            self.cron_result_label.config(text=f"Cron validation result: Invalid")
+            self.cron_result_label.config(text=f"Cron and date validation result: Invalid")
+            self.ok_button.config(state=tk.DISABLED)
             return None
         # get the current date and timeµ
 
         #scedule the capture
-        print("end date is not none")
+        if end_date is not None:
+            print("end date is not none")
         print("end date: ", end_date)
     
 
@@ -95,10 +107,6 @@ class ScheduleWindow(tk.Toplevel):
         now = datetime.now()
         print("now: ", now)
 
-
-        # get the end date and time
-        if end_date is not None:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d")
         print("end_date: ", end_date)
 
         print ("complete end time: ", end_date, " cron string: ", result_cron_var)
@@ -106,8 +114,26 @@ class ScheduleWindow(tk.Toplevel):
 
     def get_end_date(self,result_label):
         global end_date
-        end_date = simpledialog.askstring("Input", "Enter end date (YYYY-MM-DD):")
-        if end_date is None:
-            end_date = datetime.now().strftime("%Y-%m-%d")
-        print("end_date: ", end_date)
-        result_label.config(text=end_date)
+        end_date_dt = None
+        self.ok_button.config(state=tk.DISABLED)
+        end_date_str = simpledialog.askstring("Input", "Enter end date (YYYY-MM-DD):")
+
+        if end_date_str != '' and end_date_str is not None:
+            try:
+                # Try to parse the date string
+                end_date_dt = datetime.strptime(end_date_str, "%Y-%m-%d")
+                print("end_date is in the correct format")
+                result_label.config(text=end_date_str)
+                end_date = end_date_dt
+                self.valid_date = True
+                self.default_date = False
+                result_label.config(text=end_date)
+            except ValueError:
+                result_label.config(text="Invalid date format")
+                self.valid_date = False
+                self.default_date = False
+        else: 
+            result_label.config(text="Date set to None")
+            self.valid_date = True
+            self.default_date = False
+            end_date = None 
