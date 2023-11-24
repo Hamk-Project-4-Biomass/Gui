@@ -1,8 +1,8 @@
-cv2
+opencv-python
 numpy
 pyrealsense2
-tkinter
-tkinter
-PIL
-open3d
+tk
+PILLOW
 croniter
+subprocess
+```
