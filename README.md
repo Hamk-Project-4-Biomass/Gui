@@ -90,3 +90,32 @@ python main.py
   you can also stop the scheduled jobs by clicking the stop button  
   ![schedule image](./readme-images/shedule-info.png)
 
+* [X] **Importing and exporting of settings**
+  * Import and export settings to and from a file.
+    > you can export the settings by clicking the export buttons in the top bar the settings are saved in the settings.json file in the project directory look at the example below to see how the settings are saved
+
+    ```json
+    {
+    "exposure": 156,
+    "brightness": -64,
+    "contrast": 19,
+    "gain": 58,
+    "hue": 101,
+    "saturation": 26,
+    "sharpness": 72,
+    "gamma": 141,
+    "white balance": 4600,
+    "power line frequency": 2,
+    "auto white balance": 0,
+    "auto exposure": 0,
+    "depth exposure": 45,
+    "depth gain": 183,
+    "depth power": 270,
+    "auto depth exposure": 1,
+    "end date": "2023-12-13T00:00:00",
+    "cron interval": "*/1 * * * *",
+    "output path": "c:\\Users\\ExampleUser\\OneDrive\\Documents"
+    }
+    ```
+
+    > there is an example settings file in the project directory called settings.json.example  **if there is an settings.json file in the project directory the program will use that file as the settings file**
