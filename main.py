@@ -1,16 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime, timedelta
+from datetime import datetime
 from PIL import ImageTk
 from functions import *
 from pyrealsense import *
 from scheduling import ScheduleWindow
+import json
 import os
 import subprocess
-import time
-import multiprocessing
 from croniter import croniter
-import sys
 
 class AppState:
 
@@ -26,9 +24,16 @@ class RealSenseViewer:
     time_until_next_execution = None
     cron_status = False
 
-    def __init__(self, root, state):
+    def __init__(self, root, state, config = None):
         self.root = root
         self.state = state
+
+        if config is None:    
+            self.script_dir = os.path.dirname(__file__)
+        else:
+            self.script_dir = config["output path"]
+        
+        
         self.create_gui()
 
     def run(self):
@@ -58,9 +63,7 @@ class RealSenseViewer:
 
             fulldatestring = datetime.now().strftime("%Y-%m-%d.%H.%M.%S")
 
-            script_dir = os.path.dirname(__file__)
-
-            export.png(color_image, depth_image, fulldatestring, script_dir)
+            export.png(color_image, depth_image, fulldatestring, self.script_dir)
 
         def save_ply():
             color_frame = state.realsense.get_color_frame()
@@ -68,9 +71,7 @@ class RealSenseViewer:
 
             fulldatestring = datetime.now().strftime("%Y-%m-%d.%H.%M.%S")
 
-            script_dir = os.path.dirname(__file__)
-
-            export.ply(color_frame, depth_frame, fulldatestring + ".ply", script_dir)
+            export.ply(color_frame, depth_frame, fulldatestring + ".ply", self.script_dir)
 
         def pointcloud_viewer():
             state.realsense.pipe_stop()
@@ -84,9 +85,9 @@ class RealSenseViewer:
         def open_schedule_window():
 
 
-            def parent_callback(cron_interval, end_date):
+            def parent_callback(cron_interval, callback_end_date):
                 self.cron_interval = cron_interval
-                self.end_date = end_date
+                self.end_date = callback_end_date
                 # Update the scheduling info
                 self.planned_end_date_label.configure(text=f"Planned End Date: {self.end_date}")
                 self.interval_label.configure(text=f"Cron interval: {self.cron_interval}")
@@ -108,7 +109,7 @@ class RealSenseViewer:
                         self.next_execution = cron.get_next(datetime)
 
                 def update_cron():
-                    if (end_date is None or datetime.now() < self.end_date) and self.cron_status:
+                    if (self.end_date is None or datetime.now() < self.end_date) and self.cron_status:
                         check_cron()
                         self.root.after(1000, update_cron)
                     else:
@@ -138,8 +139,41 @@ class RealSenseViewer:
         schedule_button = ttk.Button(button_frame, text="Scheduling", command=open_schedule_window)
         schedule_button.grid(row=0, column=3, padx=2, pady=2)
 
+        settings_button = ttk.Button(button_frame, text="Export settings", command=self.export_settings)
+        settings_button.grid(row=0, column=4, padx=2, pady=2)
+
         quit_button = ttk.Button(button_frame, text="Quit", command=self.root.destroy)
-        quit_button.grid(row=0, column=4, padx=2, pady=2)
+        quit_button.grid(row=0, column=5, padx=2, pady=2)
+
+    def export_settings(self):
+        #Create a dictionary with the current settings
+        dictionary = {
+            
+            "exposure": state.realsense.get_color_exposure(),
+            "brightness": state.realsense.get_color_brightness(),
+            "contrast": state.realsense.get_color_contrast(),
+            "gain": state.realsense.get_color_gain(),
+            "hue": state.realsense.get_color_hue(),
+            "saturation": state.realsense.get_color_saturation(),
+            "sharpness": state.realsense.get_color_sharpness(),
+            "gamma": state.realsense.get_color_gamma(),
+            "white balance": state.realsense.get_color_white_balance(),
+            "power line frequency": state.realsense.get_color_power_line_frequency(),
+            "auto white balance": state.realsense.get_color_auto_white_balance(),
+            "backlight compensation": state.realsense.get_backlight_compensation(),
+            "auto exposure": state.realsense.get_color_auto_exposure(),
+            "depth exposure": state.realsense.get_depth_exposure(),
+            "depth gain": state.realsense.get_depth_gain(),
+            "depth power": state.realsense.get_depth_power(),
+            "auto depth exposure": state.realsense.get_depth_auto_exposure(),
+            "end date": self.end_date.isoformat() if self.end_date is not None else None,
+            "cron interval": self.cron_interval,
+            "output path": self.script_dir,
+        }
+
+        with open("user_settings.json", "w") as outfile:
+            json.dump(dictionary, outfile, indent=4)
+                      
 
     def create_canvases(self):
         # Create canvas widgets for color and depth images
@@ -193,14 +227,13 @@ class RealSenseViewer:
         self.time_to_next_picture_label.pack(anchor="w")
 
         def reset_schedule():
-            end_date = None
-            cron_interval = None
+            self.end_date = None
+            self.cron_interval = None
             self.time_until_next_execution = None
             #Update the scheduling info
-            self.planned_end_date_label.configure(text=f"Planned End Date: {end_date}")
-            self.interval_label.configure(text=f"Cron interval: {cron_interval}")
+            self.planned_end_date_label.configure(text=f"Planned End Date: {self.end_date}")
+            self.interval_label.configure(text=f"Cron interval: {self.cron_interval}")
             self.time_to_next_picture_label.configure(text=f"Time to Next Picture: {self.time_until_next_execution}")
-            self.end_date = datetime.now()
             self.cron_status = False
 
         stop_button = ttk.Button(schedule_info_frame, text="Stop process", command=reset_schedule)
@@ -259,27 +292,33 @@ class RealSenseViewer:
             self.update_auto_btns()
 
 
-        auto_exposure_btn = ttk.Button(color_frame, text="Auto Exposure", command=color_auto_exposure)
+        auto_exposure_btn = ttk.Button(color_frame, text="Auto Exposure1", command=color_auto_exposure)
         auto_exposure_btn.grid(row=2, column=2, padx=2, pady=2)
         self.auto_btns.append(auto_exposure_btn)
 
+        update_sliders_btn = ttk.Button(color_frame, text="Update slider info", command=self.update_sliders)
+        update_sliders_btn.grid(row=3, column=2, padx=2, pady=2)
+        self.auto_btns.append(update_sliders_btn)
+
     def update_auto_btns(self):
-            self.auto_btns[0].configure(text="Auto White Balance" if self.state.realsense.get_color_auto_white_balance() else "Manual White Balance")
-            self.auto_btns[1].configure(text="Backlight Compensation" if self.state.realsense.get_backlight_compensation() else "Manual Backlight Compensation")
-            self.auto_btns[2].configure(text="Auto Exposure" if self.state.realsense.get_color_auto_exposure() else "Manual Exposure")
-            self.auto_btns[3].configure(text="Auto Exposure" if self.state.realsense.get_depth_auto_exposure() else "Manual Exposure")
+            self.auto_btns[0].configure(text="Auto White Balance" if state.realsense.get_color_auto_white_balance() else "Manual White Balance")
+            self.auto_btns[1].configure(text="Backlight Compensation" if state.realsense.get_backlight_compensation() else "Manual Backlight Compensation")
+            self.auto_btns[2].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
+            self.auto_btns[4].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
 
     def update_sliders(self):
-        self.sliders_color[0].set(self.state.realsense.get_color_exposure())
-        self.sliders_color[1].set(self.state.realsense.get_color_brightness())
-        self.sliders_color[2].set(self.state.realsense.get_color_contrast())
-        self.sliders_color[3].set(self.state.realsense.get_color_gain())
-        self.sliders_color[4].set(self.state.realsense.get_color_hue())
-        self.sliders_color[5].set(self.state.realsense.get_color_saturation())
-        self.sliders_color[6].set(self.state.realsense.get_color_sharpness())
-        self.sliders_color[7].set(self.state.realsense.get_color_gamma())
-        self.sliders_color[8].set(self.state.realsense.get_color_white_balance())
-        self.sliders_color[9].set(self.state.realsense.get_color_power_line_frequency())
+        self.sliders_color[0].set(state.realsense.get_color_exposure())
+        self.sliders_color[1].set(state.realsense.get_color_brightness())
+        self.sliders_color[2].set(state.realsense.get_color_contrast())
+        self.sliders_color[3].set(state.realsense.get_color_gain())
+        self.sliders_color[4].set(state.realsense.get_color_hue())
+        self.sliders_color[5].set(state.realsense.get_color_saturation())
+        self.sliders_color[6].set(state.realsense.get_color_sharpness())
+        self.sliders_color[7].set(state.realsense.get_color_gamma())
+        self.sliders_color[8].set(state.realsense.get_color_white_balance())
+        self.sliders_color[9].set(state.realsense.get_color_power_line_frequency())
+
+        
 
     def create_depth_sliders(self):
         sliders_depth = []
