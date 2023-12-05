@@ -32,9 +32,29 @@ class RealSenseViewer:
             self.script_dir = os.path.dirname(__file__)
         else:
             self.script_dir = config["output path"]
-        
+            self.load_config(config)
         
         self.create_gui()
+
+    def load_config(self, config):
+        state.realsense.set_color_exposure(config["exposure"])
+        state.realsense.set_color_brightness(config["brightness"])
+        state.realsense.set_color_contrast(config["contrast"])
+        state.realsense.set_color_gain(config["gain"])
+        state.realsense.set_color_hue(config["hue"])
+        state.realsense.set_color_saturation(config["saturation"])
+        state.realsense.set_color_sharpness(config["sharpness"])
+        state.realsense.set_color_gamma(config["gamma"])
+        state.realsense.set_color_white_balance(config["white balance"])
+        state.realsense.set_color_power_line_frequency(config["power line frequency"])
+        state.realsense.set_color_auto_white_balance(config["auto white balance"])
+        state.realsense.set_color_auto_exposure(config["auto exposure"])
+        state.realsense.set_depth_exposure(config["depth exposure"])
+        state.realsense.set_depth_gain(config["depth gain"])
+        state.realsense.set_depth_power(config["depth power"])
+        state.realsense.set_depth_auto_exposure(config["auto depth exposure"])
+        self.end_date = datetime.fromisoformat(config["end date"]) if config["end date"] is not None else None
+        self.cron_interval = config["cron interval"]
 
     def run(self):
         self.root.mainloop()
@@ -52,6 +72,10 @@ class RealSenseViewer:
         self.create_color_sliders()
 
         self.create_depth_sliders()
+
+        self.update_sliders()
+
+        self.update_auto_btns()
 
 
     
@@ -160,7 +184,6 @@ class RealSenseViewer:
             "white balance": state.realsense.get_color_white_balance(),
             "power line frequency": state.realsense.get_color_power_line_frequency(),
             "auto white balance": state.realsense.get_color_auto_white_balance(),
-            "backlight compensation": state.realsense.get_backlight_compensation(),
             "auto exposure": state.realsense.get_color_auto_exposure(),
             "depth exposure": state.realsense.get_depth_exposure(),
             "depth gain": state.realsense.get_depth_gain(),
@@ -277,15 +300,6 @@ class RealSenseViewer:
         btn.grid(row=0, column=2, padx=2, pady=2)
         self.auto_btns.append(btn)
 
-        def backlight_compensation():
-            state.realsense.color_backlight_compensation()
-            self.update_sliders()
-            self.update_auto_btns()
-
-        backlight_compensation_btn = ttk.Button(color_frame, text="Backlight Compensation", command=backlight_compensation)
-        backlight_compensation_btn.grid(row=1, column=2, padx=2, pady=2)
-        self.auto_btns.append(backlight_compensation_btn)
-
         def color_auto_exposure():
             state.realsense.color_auto_exposure()
             self.update_sliders()
@@ -293,35 +307,20 @@ class RealSenseViewer:
 
 
         auto_exposure_btn = ttk.Button(color_frame, text="Auto Exposure1", command=color_auto_exposure)
-        auto_exposure_btn.grid(row=2, column=2, padx=2, pady=2)
+        auto_exposure_btn.grid(row=1, column=2, padx=2, pady=2)
         self.auto_btns.append(auto_exposure_btn)
 
         update_sliders_btn = ttk.Button(color_frame, text="Update slider info", command=self.update_sliders)
         update_sliders_btn.grid(row=3, column=2, padx=2, pady=2)
-        self.auto_btns.append(update_sliders_btn)
 
     def update_auto_btns(self):
             self.auto_btns[0].configure(text="Auto White Balance" if state.realsense.get_color_auto_white_balance() else "Manual White Balance")
-            self.auto_btns[1].configure(text="Backlight Compensation" if state.realsense.get_backlight_compensation() else "Manual Backlight Compensation")
-            self.auto_btns[2].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
-            self.auto_btns[4].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
-
-    def update_sliders(self):
-        self.sliders_color[0].set(state.realsense.get_color_exposure())
-        self.sliders_color[1].set(state.realsense.get_color_brightness())
-        self.sliders_color[2].set(state.realsense.get_color_contrast())
-        self.sliders_color[3].set(state.realsense.get_color_gain())
-        self.sliders_color[4].set(state.realsense.get_color_hue())
-        self.sliders_color[5].set(state.realsense.get_color_saturation())
-        self.sliders_color[6].set(state.realsense.get_color_sharpness())
-        self.sliders_color[7].set(state.realsense.get_color_gamma())
-        self.sliders_color[8].set(state.realsense.get_color_white_balance())
-        self.sliders_color[9].set(state.realsense.get_color_power_line_frequency())
-
+            self.auto_btns[1].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
+            self.auto_btns[2].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
         
 
     def create_depth_sliders(self):
-        sliders_depth = []
+        self.sliders_depth = []
 
         depth_frame = tk.Frame(self.root)
         depth_frame.grid(row=2, column=1, columnspan=3, pady=2, sticky="ne")
@@ -338,7 +337,7 @@ class RealSenseViewer:
             slider1 = tk.Scale(depth_frame, **slider_args)
             slider1.grid(row=i, column=1, padx=2, pady=2)
             slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1, cmd=command: cmd(slider.get()))
-            sliders_depth.append(slider1)   
+            self.sliders_depth.append(slider1)   
 
         def depth_auto_exposure():
             state.realsense.depth_auto_exposure()
@@ -347,9 +346,32 @@ class RealSenseViewer:
         btn.grid(row=0, column=0, padx=2, pady=2)
         self.auto_btns.append(btn)
 
+    def update_sliders(self):
+        self.sliders_color[0].set(state.realsense.get_color_exposure())
+        self.sliders_color[1].set(state.realsense.get_color_brightness())
+        self.sliders_color[2].set(state.realsense.get_color_contrast())
+        self.sliders_color[3].set(state.realsense.get_color_gain())
+        self.sliders_color[4].set(state.realsense.get_color_hue())
+        self.sliders_color[5].set(state.realsense.get_color_saturation())
+        self.sliders_color[6].set(state.realsense.get_color_sharpness())
+        self.sliders_color[7].set(state.realsense.get_color_gamma())
+        self.sliders_color[8].set(state.realsense.get_color_white_balance())
+        self.sliders_color[9].set(state.realsense.get_color_power_line_frequency())
+        self.sliders_depth[0].set(state.realsense.get_depth_exposure())
+        self.sliders_depth[1].set(state.realsense.get_depth_gain())
+        self.sliders_depth[2].set(state.realsense.get_depth_power())
 
 if __name__ == "__main__":
     state = AppState()
     root = tk.Tk()
-    app = RealSenseViewer(root, state)
+    #Load the user settings
+    try:
+        with open("user_settings.json", "r") as infile:
+            config = json.load(infile)
+            app = RealSenseViewer(root, state, config)
+    except:
+        print("No user settings found")
+        app = RealSenseViewer(root, state)
+        pass
+    
     app.run()

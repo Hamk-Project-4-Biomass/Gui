@@ -100,6 +100,9 @@ class RealSense:
     def pipe_start(self):
         self.pipe.start(self.rs_config)
 
+    def set_color_auto_exposure(self, value):
+        self.sensor_rgb.set_option(rs.option.enable_auto_exposure, value)
+
     def color_auto_exposure(self):
         if self.sensor_rgb.get_option(rs.option.enable_auto_exposure):
             self.sensor_rgb.set_option(rs.option.enable_auto_exposure, False)
@@ -133,17 +136,14 @@ class RealSense:
     def set_color_white_balance(self, value):
         self.sensor_rgb.set_option(rs.option.white_balance, value)
 
+    def set_color_auto_white_balance(self, value):
+        self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, value)
+
     def toggle_color_auto_white_balance(self):
         if self.sensor_rgb.get_option(rs.option.enable_auto_white_balance):
             self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, False)
         else:
             self.sensor_rgb.set_option(rs.option.enable_auto_white_balance, True)
-
-    def color_backlight_compensation(self):
-        if self.sensor_rgb.get_option(rs.option.backlight_compensation):
-            self.sensor_rgb.set_option(rs.option.backlight_compensation, False)
-        else:
-            self.sensor_rgb.set_option(rs.option.backlight_compensation, True)
 
     def color_low_light_compensation(self):
         if self.sensor_rgb.get_option(rs.option.low_light_comp):
@@ -162,6 +162,9 @@ class RealSense:
 
     def set_depth_power(self,value):
         self.sensor_depth.set_option(rs.option.laser_power, value)
+
+    def set_depth_auto_exposure(self, value):
+        self.sensor_depth.set_option(rs.option.enable_auto_exposure, value)
 
     def depth_auto_exposure(self):
         if self.sensor_depth.get_option(rs.option.enable_auto_exposure):
