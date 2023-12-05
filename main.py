@@ -63,8 +63,6 @@ class RealSenseViewer:
         self.root.state('zoomed')
         self.root.title("RealSense Viewer")
 
-        self.create_top_bar()
-
         self.create_canvases()
 
         self.create_schedule_info()
@@ -77,7 +75,7 @@ class RealSenseViewer:
 
         self.update_auto_btns()
 
-
+        self.create_top_bar()
     
     def create_top_bar(self):
         def save_png():
@@ -106,10 +104,8 @@ class RealSenseViewer:
             process.wait()
             state.realsense.pipe_start()
 
-        def open_schedule_window():
 
-
-            def parent_callback(cron_interval, callback_end_date):
+        def parent_callback(cron_interval, callback_end_date):
                 self.cron_interval = cron_interval
                 self.end_date = callback_end_date
                 # Update the scheduling info
@@ -142,7 +138,10 @@ class RealSenseViewer:
                 self.cron_status = True
                 update_cron()
 
-                #---------------------------------------------------------
+        if self.cron_interval is not None:
+            parent_callback(self.cron_interval, self.end_date)
+
+        def open_schedule_window():
                 
             schedule_window = ScheduleWindow(root, parent_callback)
             root.wait_window(schedule_window)
@@ -172,7 +171,6 @@ class RealSenseViewer:
     def export_settings(self):
         #Create a dictionary with the current settings
         dictionary = {
-            
             "exposure": state.realsense.get_color_exposure(),
             "brightness": state.realsense.get_color_brightness(),
             "contrast": state.realsense.get_color_contrast(),
@@ -197,7 +195,6 @@ class RealSenseViewer:
         with open("user_settings.json", "w") as outfile:
             json.dump(dictionary, outfile, indent=4)
                       
-
     def create_canvases(self):
         # Create canvas widgets for color and depth images
         color_canvas = tk.Canvas(self.root, width=640, height=480)
@@ -318,7 +315,6 @@ class RealSenseViewer:
             self.auto_btns[1].configure(text="Auto Exposure" if state.realsense.get_color_auto_exposure() else "Manual Exposure")
             self.auto_btns[2].configure(text="Auto Exposure" if state.realsense.get_depth_auto_exposure() else "Manual Exposure")
         
-
     def create_depth_sliders(self):
         self.sliders_depth = []
 
@@ -364,14 +360,16 @@ class RealSenseViewer:
 if __name__ == "__main__":
     state = AppState()
     root = tk.Tk()
+    config = None
     #Load the user settings
     try:
         with open("user_settings.json", "r") as infile:
             config = json.load(infile)
-            app = RealSenseViewer(root, state, config)
+            
     except:
         print("No user settings found")
-        app = RealSenseViewer(root, state)
         pass
+
     
+    app = RealSenseViewer(root, state, config)
     app.run()

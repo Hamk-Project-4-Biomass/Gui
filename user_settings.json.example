@@ -1,0 +1,21 @@
+{
+  "exposure": 156,
+  "brightness": -64,
+  "contrast": 19,
+  "gain": 58,
+  "hue": 101,
+  "saturation": 26,
+  "sharpness": 72,
+  "gamma": 141,
+  "white balance": 4600,
+  "power line frequency": 2,
+  "auto white balance": 0,
+  "auto exposure": 0,
+  "depth exposure": 45,
+  "depth gain": 183,
+  "depth power": 270,
+  "auto depth exposure": 1,
+  "end date": "2023-12-13T00:00:00",
+  "cron interval": "*/1 * * * *",
+  "output path": "c:\\Users\\ExampleUser\\OneDrive\\Documents"
+}
