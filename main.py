@@ -30,7 +30,7 @@ class RealSenseViewer:
     def __init__(self, root, state, config=None):
         self.root = root
         self.state = state
-
+        
         # checking if config file exists, then assigning the output path
         if config is None:
             self.script_dir = os.path.dirname(__file__)
@@ -128,7 +128,8 @@ class RealSenseViewer:
             self.cron_interval = cron_interval
             self.end_date = callback_end_date
             # Update the scheduling info
-            self.planned_end_date_label.configure(text=f"Planned End Date: {self.end_date}")
+            display_date = self.end_date.strftime("%Y-%m-%d") if self.end_date is not None else None
+            self.planned_end_date_label.configure(text=f"Planned End Date: {display_date}")
             self.interval_label.configure(text=f"Cron interval: {self.cron_interval}")
 
             # ------------------------Cron code------------------------
@@ -255,13 +256,13 @@ class RealSenseViewer:
         # Creating a frame to display scheduling info
         schedule_info_frame = tk.Frame(self.root, borderwidth=2, relief="solid")
         schedule_info_frame.grid(row=1, column=3, columnspan=1, pady=2, padx=2, sticky="ew")
-
         # Add a title label to the frame
         title_label = tk.Label(schedule_info_frame, text="Scheduling info", font=("Helvetica", 16, "bold"))
         title_label.pack(pady=(0, 10))
 
         # Add labels for planned end date, interval, and time to next picture
-        self.planned_end_date_label = tk.Label(schedule_info_frame, text=f"Planned End Date: {self.end_date}")
+        display_date = self.end_date.strftime("%Y-%m-%d") if self.end_date is not None else None
+        self.planned_end_date_label = tk.Label(schedule_info_frame, text=f"Planned End Date: {display_date}")
         self.planned_end_date_label.pack(anchor="w")
 
         self.interval_label = tk.Label(schedule_info_frame, text=f"Cron interval: {self.cron_interval}")
@@ -287,7 +288,7 @@ class RealSenseViewer:
     def create_color_sliders(self):
         # the options for the color camera
         color_frame = tk.Frame(self.root)
-        color_frame.grid(row=2, column=0, columnspan=3, pady=2, sticky="ew")
+        color_frame.grid(row=2, column=0, columnspan=3 ,pady=2, sticky="ew")
 
         self.sliders_color = []
 
@@ -319,7 +320,7 @@ class RealSenseViewer:
             self.update_sliders()
             self.update_auto_btns()
 
-        btn = ttk.Button(color_frame, text="Auto Withe Balance", command=auto_white_balance)
+        btn = ttk.Button(color_frame, text="Auto White Balance", command=auto_white_balance)
         btn.grid(row=0, column=2, padx=2, pady=2)
         self.auto_btns.append(btn)
 
@@ -328,7 +329,7 @@ class RealSenseViewer:
             self.update_sliders()
             self.update_auto_btns()
 
-        auto_exposure_btn = ttk.Button(color_frame, text="Auto Exposure1", command=color_auto_exposure)
+        auto_exposure_btn = ttk.Button(color_frame, text="Auto Exposure", command=color_auto_exposure)
         auto_exposure_btn.grid(row=1, column=2, padx=2, pady=2)
         self.auto_btns.append(auto_exposure_btn)
 
@@ -347,7 +348,7 @@ class RealSenseViewer:
         self.sliders_depth = []
 
         depth_frame = tk.Frame(self.root)
-        depth_frame.grid(row=2, column=1, columnspan=3, pady=2, sticky="ne")
+        depth_frame.grid(row=2, column=1, columnspan=3, pady=2, sticky="nwe")
 
         sliders_data = [
             ("exposure", {"from_": 1, "to": 166, "orient": tk.HORIZONTAL}, state.realsense.set_depth_exposure),
@@ -357,7 +358,7 @@ class RealSenseViewer:
 
         for i, (text, slider_args, command) in enumerate(sliders_data):
             label = tk.Label(depth_frame, text=text)
-            label.grid(row=i, column=2, padx=2, pady=2)
+            label.grid(row=i, column=0, padx=2, pady=2)
             slider1 = tk.Scale(depth_frame, **slider_args)
             slider1.grid(row=i, column=1, padx=2, pady=2)
             slider1.bind("<ButtonRelease-1>", lambda event, slider=slider1, cmd=command: cmd(slider.get()))
@@ -365,9 +366,12 @@ class RealSenseViewer:
 
         def depth_auto_exposure():
             state.realsense.depth_auto_exposure()
+            self.update_sliders()
+            self.update_auto_btns()
+
 
         btn = ttk.Button(depth_frame, text="Auto Exposure", command=depth_auto_exposure)
-        btn.grid(row=0, column=0, padx=2, pady=2)
+        btn.grid(row=0, column=2, padx=2, pady=2)
         self.auto_btns.append(btn)
 
     def update_sliders(self):
