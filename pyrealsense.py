@@ -1,6 +1,6 @@
-import pyrealsense2 as rs
-import numpy as np
 import cv2
+import numpy as np
+import pyrealsense2 as rs
 from PIL import Image
 
 
@@ -16,18 +16,17 @@ class RealSense:
         self.depth_frame = None
         self.frames = None
 
-        try: 
+        try:
             self.pipe = rs.pipeline()
 
             self.rs_config = rs.config()
-            
-            
+
             self.rs_config.enable_stream(rs.stream.depth, rs.format.z16, 30)
             self.rs_config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
 
             cfg = self.pipe.start(self.rs_config)
 
-            #--------------Code to get intrinsics of the camera-----------------#
+            # --------------Code to get intrinsics of the camera-----------------#
             # profile = cfg.get_stream(rs.stream.depth) # Fetch stream profile for depth stream
             # profile_color = cfg.get_stream(rs.stream.color) # Fetch stream profile for color stream
             # intr = profile.as_video_stream_profile().get_extrinsics() # Downcast to video_stream_profile and fetch intrinsics
@@ -62,7 +61,8 @@ class RealSense:
 
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_image, alpha=0.07), cv2.COLORMAP_MAGMA)
-        depth_raw_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_raw_image, alpha=0.07), cv2.COLORMAP_MAGMA)
+        depth_raw_colormap = cv2.applyColorMap(cv2.convertScaleAbs(self.depth_raw_image, alpha=0.07),
+                                               cv2.COLORMAP_MAGMA)
 
         # Convert the NumPy arrays to images suitable for displaying in Tkinter
         self.color_pil_image = Image.fromarray(cv2.cvtColor(self.color_image, cv2.COLOR_BGR2RGB))
@@ -77,11 +77,11 @@ class RealSense:
     def get_color_pill_image(self):
         self.update()
         return self.color_pil_image
-    
+
     def get_depth_image(self):
         self.update()
         return self.depth_export_image
-    
+
     def get_color_image(self):
         self.update()
         return self.color_export_image
@@ -160,7 +160,7 @@ class RealSense:
     def set_depth_gain(self, value):
         self.sensor_depth.set_option(rs.option.gain, value)
 
-    def set_depth_power(self,value):
+    def set_depth_power(self, value):
         self.sensor_depth.set_option(rs.option.laser_power, value)
 
     def set_depth_auto_exposure(self, value):
@@ -171,7 +171,6 @@ class RealSense:
             self.sensor_depth.set_option(rs.option.enable_auto_exposure, False)
         else:
             self.sensor_depth.set_option(rs.option.enable_auto_exposure, True)
-
 
     # Getters
     def get_color_power_line_frequency(self):
@@ -215,16 +214,15 @@ class RealSense:
 
     def get_low_light_compensation(self):
         return self.sensor_rgb.get_option(rs.option.low_light_compensation)
-    
+
     def get_depth_exposure(self):
         return self.sensor_depth.get_option(rs.option.exposure)
-    
+
     def get_depth_gain(self):
         return self.sensor_depth.get_option(rs.option.gain)
-    
+
     def get_depth_power(self):
         return self.sensor_depth.get_option(rs.option.laser_power)
-    
+
     def get_depth_auto_exposure(self):
         return self.sensor_depth.get_option(rs.option.enable_auto_exposure)
-    
